@@ -1,11 +1,5 @@
 (require 'package)
 
-(setq default-frame-alist
-      '((height . 30)
-        (width . 90)
-        (left . 10)
-        (top . 10)))
-
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (package-initialize)
 
@@ -21,6 +15,12 @@
 (unless (package-installed-p 'exec-path-from-shell)
   (package-refresh-contents)
   (package-install 'exec-path-from-shell))
+
+(setq default-frame-alist
+      '((height . 30)
+        (width . 90)
+        (left . 10)
+        (top . 10)))
 
 (when (memq window-system '(mac ns x))
   (setq ns-right-alternate-modifier 'none)
@@ -110,6 +110,7 @@
   (add-hook 'lisp-mode-hook 'enable-paredit-mode)
   (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
   (add-hook 'slime-repl-mode-hook 'enable-paredit-mode)
+  (add-hook 'scheme-mode-hook 'enable-paredit-mode)
   (defun override-slime-del-key ()
     (define-key slime-repl-mode-map
                 (read-kbd-macro paredit-backward-delete-key) nil))
@@ -119,11 +120,21 @@
   ;; :ensure t
   :after (slime company)
   :config
+  (set-face-foreground 'rainbow-delimiters-depth-1-face "#c66")  ; red
+  (set-face-foreground 'rainbow-delimiters-depth-2-face "#6c6")  ; green
+  (set-face-foreground 'rainbow-delimiters-depth-3-face "#69f")  ; blue
+  (set-face-foreground 'rainbow-delimiters-depth-4-face "#cc6")  ; yellow
+  (set-face-foreground 'rainbow-delimiters-depth-5-face "#6cc")  ; cyan
+  (set-face-foreground 'rainbow-delimiters-depth-6-face "#c6c")  ; magenta
+  (set-face-foreground 'rainbow-delimiters-depth-7-face "#ccc")  ; light gray
+  (set-face-foreground 'rainbow-delimiters-depth-8-face "#999")  ; medium gray
+  (set-face-foreground 'rainbow-delimiters-depth-9-face "#666")  ; dark gray
   (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
   (add-hook 'ielm-mode-hook 'rainbow-delimiters-mode)
   (add-hook 'lisp-mode-hook 'rainbow-delimiters-mode)
   (add-hook 'lisp-interaction-mode-hook 'rainbow-delimiters-mode)
-  (add-hook 'slime-repl-mode-hook 'rainbow-delimiters-mode))
+  (add-hook 'slime-repl-mode-hook 'rainbow-delimiters-mode)
+  (add-hook 'scheme-mode-hook 'rainbow-delimiters-mode))
 
 (use-package ellama
   :init
@@ -152,6 +163,7 @@
  ;; If there is more than one, they won't work right.
  '(blink-cursor-mode nil)
  '(custom-enabled-themes '(wheatgrass))
+ '(geiser-chez-binary "chez")
  '(package-selected-packages
    '(avy dap-mode helm-lsp helm-xref hydra lsp-mode lsp-treemacs projectile which-key yasnippet ellama geiser-chez rainbow-delimiters paredit slime-repl-ansi-color slime-company slime flycheck company))
  '(tool-bar-mode nil))
