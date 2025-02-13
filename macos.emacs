@@ -1,5 +1,7 @@
 (require 'package)
 
+(setq max-lisp-eval-depth 10000)
+
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (package-initialize)
 
@@ -76,21 +78,14 @@
 (set-keyboard-coding-system 'utf-8)
 
 (use-package company
-  ;; :ensure t
   :diminish company-mode
   :config (add-hook 'after-init-hook #'global-company-mode))
 
-(use-package flycheck
-  ;; :ensure t
-  :diminish flycheck-mode
-  :config (add-hook 'after-init-hook #'global-flycheck-mode))
-
 (use-package slime
-  ;; :ensure t
   :config
   (setq slime-lisp-implementations
         '((sbcl ("sbcl") :coding-system utf-8-unix)
-          (ccl ("/home/lencionil/ccl/lx86cl64"))))
+          (clisp ("clisp"))))
   (setq slime-contribs '(slime-fancy
 			 slime-company
 			 slime-repl-ansi-color))
@@ -101,8 +96,7 @@
         slime-company-after-completion 'slime-company-just-one-space))
 
 (use-package paredit
-  ;; :ensure t
-  :after (slime company)
+  :after (slime)
   :config
   (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
   (add-hook 'eval-expression-minibuffer-setup-hook 'enable-paredit-mode)
@@ -117,8 +111,7 @@
   (add-hook 'slime-repl-mode-hook 'override-slime-del-key))
 
 (use-package rainbow-delimiters
-  ;; :ensure t
-  :after (slime company)
+  :after (slime)
   :config
   (set-face-foreground 'rainbow-delimiters-depth-1-face "#c66")  ; red
   (set-face-foreground 'rainbow-delimiters-depth-2-face "#6c6")  ; green
@@ -136,25 +129,37 @@
   (add-hook 'slime-repl-mode-hook 'rainbow-delimiters-mode)
   (add-hook 'scheme-mode-hook 'rainbow-delimiters-mode))
 
-(use-package ellama
+(use-package vertico
+  :ensure t
   :init
-  (require 'llm-ollama)
-  (setopt ellama-provider
-	  (make-llm-ollama
-	   ;; this model should be pulled to use it
-	   ;; value should be the same as you print in terminal during pull
-	   :chat-model "llama3"
-	   :embedding-model "llama3")))
+  (vertico-mode 1))
 
-(helm-mode)
-(require 'helm-xref)
-(define-key global-map [remap find-file] #'helm-find-files)
-(define-key global-map [remap execute-extended-command] #'helm-M-x)
-(define-key global-map [remap switch-to-buffer] #'helm-mini)
+(use-package marginalia
+  :ensure t
+  :init
+  (marginalia-mode))
 
-(which-key-mode)
-(add-hook 'c-mode-hook 'lsp)
-(add-hook 'c++-mode-hook 'lsp)
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
+
+(use-package gptel
+  :ensure t
+  :config
+  (setq
+   gptel-model "opencoder:latest"
+   gptel-backend
+   (gptel-make-ollama "Ollama"
+     :host "localhost:11434"
+     :stream t
+     :models '("qwen2.5-coder:latest"
+               "llama3.1:latest"
+               "dolphin3:latest"
+               "opencoder:latest"
+               "deepseek-r1:14b"
+               "phi4:latest"))))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -165,11 +170,13 @@
  '(custom-enabled-themes '(wheatgrass))
  '(geiser-chez-binary "chez")
  '(package-selected-packages
-   '(avy dap-mode helm-lsp helm-xref hydra lsp-mode lsp-treemacs projectile which-key yasnippet ellama geiser-chez rainbow-delimiters paredit slime-repl-ansi-color slime-company slime flycheck company))
+   '(0blayout chatwork exec-path-from-shell gptel marginalia markdown-mode
+              mermaid-mode orderless paredit plantuml-mode rainbow-delimiters
+              slime-company slime-repl-ansi-color vertico))
  '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "IBM Plex Mono" :foundry "nil" :slant normal :weight regular :height 170 :width normal)))))
+ '(default ((t (:family "Courier New" :foundry "nil" :slant normal :weight regular :height 180 :width normal)))))
